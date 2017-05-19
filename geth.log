@@ -1,0 +1,3 @@
+INFO [05-18|15:07:49] Starting peer-to-peer node               instance=Geth/v1.6.1-stable-021c3c28/darwin-amd64/go1.8.1
+INFO [05-18|15:07:49] Allocated cache and file handles         database=/Users/bbm/Library/Ethereum/geth/chaindata cache=128 handles=1024
+Fatal: Error starting protocol stack: resource temporarily unavailable
