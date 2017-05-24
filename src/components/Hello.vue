@@ -31,8 +31,16 @@
 </template>
 
 <script>
+//
+// goals: set listeners for contract events
+// to data vars (bound  observers)
+// todo :: compile smart contact from `.sol`
+// call contract from URL param/route
+//
+// use imports for library
 import Web3 from 'web3'
 // import TestRPC from 'ethereumjs-testrpc'
+// use `TestRPC` (needed for spec test?)
 // import * as ethjs from 'ethereumjs-util'
 
 // check for Mist.
@@ -72,6 +80,7 @@ export default {
     }
   },
   computed: {
+    // todo :: is mining,
     syncPercetage () {
       let percentage = this.syncing.currentBlock / this.syncing.highestBlock
       // return Math.floor(percentage * 100)
@@ -90,7 +99,7 @@ export default {
     // add socket/http/event watchers here
     web3.eth.isSyncing((error, sync) => {
       if (!error) {
-        dis.status = 'Syncing Chain'
+        dis.status = 'Syncing Chain...'
         if (sync && sync.currentBlock) {
           // dis.syncing = Object.assign({}, dis.syncing, sync)
           dis.syncing = sync
@@ -100,7 +109,8 @@ export default {
     // default events
     web3.eth.filter('latest').watch(() => {
       dis.updatedBalance = web3.eth.getBalance(web3.eth.coinbase).toString(10)
-      dis.status = 'Updating info...'
+      // put this in timeout?
+      dis.status = 'Updated Info.'
     })
     web3.eth.filter('pending').watch(function () {
       // if (dis.miner.hashrate > 0) return
@@ -108,7 +118,7 @@ export default {
       dis.status = 'Pending transactions! Looking for next block...'
       // todo :: create settings service
       // miner.start(settings.threads)
-    });
+    })
   }
 }
 </script>
