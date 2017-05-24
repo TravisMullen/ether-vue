@@ -14,7 +14,7 @@
     strong balance
     |  {{originalBalance}}
   li
-    strong updated
+    strong updated balance (as event callback)
     |  {{updatedBalance}}
   li.panel(v-if='syncing.currentBlock')
     strong syncing
@@ -27,7 +27,6 @@
   li
     strong accounts
     |  {{ accounts }}
-  // <li><strong>original balance</strong> {{latest}}</li>
 </template>
 
 <script>
@@ -80,7 +79,7 @@ export default {
     }
   },
   computed: {
-    // todo :: is mining,
+    // todo :: is mining
     syncPercetage () {
       let percentage = this.syncing.currentBlock / this.syncing.highestBlock
       // return Math.floor(percentage * 100)
@@ -106,8 +105,10 @@ export default {
         }
       }
     })
-    // default events
+    // default events for UI manipulation
     web3.eth.filter('latest').watch(() => {
+      // this shows we dont really need manually set the variable value
+      // because the web3 object is updated and observed by the vue.data {}
       dis.updatedBalance = web3.eth.getBalance(web3.eth.coinbase).toString(10)
       // put this in timeout?
       dis.status = 'Updated Info.'
@@ -119,6 +120,9 @@ export default {
       // todo :: create settings service
       // miner.start(settings.threads)
     })
+    //
+    // declare contract event listeners here!
+    //
   }
 }
 </script>
