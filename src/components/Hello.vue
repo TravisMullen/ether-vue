@@ -43,10 +43,8 @@ import Web3 from 'web3'
 // import * as ethjs from 'ethereumjs-util'
 
 // check for Mist.
-let web3 = web3 || undefined
-if (!web3) {
-  web3 = new Web3()
-}
+const web3 = web3 || new Web3()
+
 // geth attach // to testrpc or main
 // > admin.startRPC("127.0.0.1", 8545, "*")
 // [HPM] Proxy created: /jsonrpc  ->  http://127.0.0.1:8545/
@@ -109,16 +107,22 @@ export default {
     web3.eth.filter('latest').watch(() => {
       // this shows we dont really need manually set the variable value
       // because the web3 object is updated and observed by the vue.data {}
-      dis.updatedBalance = web3.eth.getBalance(web3.eth.coinbase).toString(10)
+      // dis.updatedBalance = web3.eth.getBalance(web3.eth.coinbase).toString(10)
       // put this in timeout?
       dis.status = 'Updated Info.'
     })
-    web3.eth.filter('pending').watch(function () {
+    web3.eth.filter('pending').watch((error, sync) => {
       // if (dis.miner.hashrate > 0) return
-
-      dis.status = 'Pending transactions! Looking for next block...'
       // todo :: create settings service
-      // miner.start(settings.threads)
+      if (!error) {
+        console.log('data', data)
+      //   dis.status = 'Pending transactions! Looking for next block...'
+      //   if (sync && sync.currentBlock) {
+      //     // dis.syncing = Object.assign({}, dis.syncing, sync)
+      //     dis.syncing = sync
+      //     // miner.start(settings.threads)
+      //   }
+      }
     })
     //
     // declare contract event listeners here!
