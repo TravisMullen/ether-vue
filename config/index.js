@@ -28,12 +28,11 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      // http://localhost:3000/socket.io/socket.io.js
-      '/abi': {
+      '/jsonrpc': {
         target: 'http://127.0.0.1:8545/',
         changeOrigin: true,
         pathRewrite: {
-          '^/': '/abi'
+          '^/': '/jsonrpc'
         }
       }
     },

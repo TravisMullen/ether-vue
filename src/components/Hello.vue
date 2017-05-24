@@ -1,50 +1,81 @@
-<template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>isConnected {{isConnected()}}</h2>
-      <h2><strong>coinbase</strong> {{ coinbase }}</h2>
-
-      <li><strong>syncing</strong> {{ syncing.currentBlock }} / {{ syncing.highestBlock }} <h1>{{syncPercetage}}%</h1></li>
-      <li><strong>hashrate</strong> {{ hashrate }}</li>
-
-      <li><strong>accounts</strong> {{ accounts }}</li>
-      <li><strong>original balance</strong> {{originalBalance}}</li>
-      <!-- <li><strong>original balance</strong> {{latest}}</li> -->
-    </ul>
-  </div>
+<template lang="pug">
+.hello
+  // <pre>{{ethjs}}</pre>
+  h1 {{ msg }}
+  h3 {{ status }}
+  h2 Connected: 
+    strong {{isConnected()}}
+  h2
+    strong
+      | Coin
+      em base
+    |  {{ coinbase }}
+  li
+    strong balance
+    |  {{originalBalance}}
+  li
+    strong updated
+    |  {{updatedBalance}}
+  li.panel(v-if='syncing.currentBlock')
+    strong syncing
+    h3 {{ syncing.currentBlock }} / {{ syncing.highestBlock }}
+    // todo:: // add progress guage
+    h1 {{syncPercetage}}%
+  li
+    strong hashrate
+    |  {{ hashrate }}
+  li
+    strong accounts
+    |  {{ accounts }}
+  // <li><strong>original balance</strong> {{latest}}</li>
 </template>
 
 <script>
 import Web3 from 'web3'
+// import TestRPC from 'ethereumjs-testrpc'
 // import * as ethjs from 'ethereumjs-util'
 
-// check for Mist (predefined)
-const web3 = new Web3()
-web3.setProvider(new Web3.providers.HttpProvider('http://localhost:8080/abi/'))
-// web3.eth.filter('latest').watch(() => {
-  //       return web3.eth.getBalance(web3.eth.coinbase).toString(10)
-  //     })
-// console.log('web3', web3)
+// check for Mist.
+let web3 = web3 || undefined
+if (!web3) {
+  web3 = new Web3()
+}
+// geth attach // to testrpc or main
+// > admin.startRPC("127.0.0.1", 8545, "*")
+// [HPM] Proxy created: /jsonrpc  ->  http://127.0.0.1:8545/
+// [HPM] Proxy rewrite rule created: "^/" ~> "/jsonrpc"
+web3.setProvider(new Web3.providers.HttpProvider('http://127.0.0.1:8080/jsonrpc/'))
+// web3.setProvider(TestRPC.provider())
 export default {
   name: 'hello',
   data () {
     return {
-      msg: 'Ethereum Status',
+      msg: 'Ethereum Node Status',
+      status: '',
+
+      // minor obj
+      // miner: web3.admin.miner,
+
+      // adding the web3 data
       coinbase: web3.eth.coinbase,
       hashrate: web3.eth.hashrate,
 
       accounts: web3.eth.accounts,
       peers: web3.eth.peers,
 
+      // nodeId: web3.admin.nodeInfo,
+
       syncing: {},
 
-      originalBalance: web3.eth.getBalance(web3.eth.coinbase).toString(10)
+      originalBalance: web3.eth.getBalance(web3.eth.coinbase).toString(10),
+      updatedBalance: web3.eth.getBalance(web3.eth.coinbase).toString(10)
     }
   },
   computed: {
     syncPercetage () {
       let percentage = this.syncing.currentBlock / this.syncing.highestBlock
-      return Math.floor(percentage * 100)
+      // return Math.floor(percentage * 100)
+      return percentage * 100
     }
   },
   methods: {
@@ -56,15 +87,28 @@ export default {
   },
   beforeCreate () {
     let dis = this
-    // add socket/http event based watchers here
+    // add socket/http/event watchers here
     web3.eth.isSyncing((error, sync) => {
       if (!error) {
+        dis.status = 'Syncing Chain'
         if (sync && sync.currentBlock) {
           // dis.syncing = Object.assign({}, dis.syncing, sync)
           dis.syncing = sync
         }
       }
     })
+    // default events
+    web3.eth.filter('latest').watch(() => {
+      dis.updatedBalance = web3.eth.getBalance(web3.eth.coinbase).toString(10)
+      dis.status = 'Updating info...'
+    })
+    web3.eth.filter('pending').watch(function () {
+      // if (dis.miner.hashrate > 0) return
+
+      dis.status = 'Pending transactions! Looking for next block...'
+      // todo :: create settings service
+      // miner.start(settings.threads)
+    });
   }
 }
 </script>
@@ -84,7 +128,9 @@ li {
   /*display: inline-block;*/
   margin: 0 10px;
 }
-
+.panel {
+  border: 1px solid black;
+}
 a {
   color: #42b983;
 }
